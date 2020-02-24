@@ -15,7 +15,19 @@ public class DirectedGraph {
         vertices = new Vertex[N];
     }
 
-    public void addEdge(int from, int to, int weight) throws IndexOutOfBoundsException {
+    public void addVertex(int i) {
+        this.vertices[i] = new Vertex(i);
+    }
+
+    public void initializeAllVertices() {
+        for (int i = 0; i < this.vertices.length; i++) {
+            if (this.vertices[i] == null) {
+                addVertex(i);
+            }
+        }
+    }
+
+    public void addEdge(int from, int to, int weight) throws IndexOutOfBoundsException, IllegalArgumentException {
         // Check bounds
         if (from >= vertices.length || from < 0) {
             throw new IndexOutOfBoundsException("" + from + " is out of bounds for vertices of size: " + N);
@@ -25,9 +37,17 @@ public class DirectedGraph {
             throw new IllegalArgumentException("Add Edge From a null pointer is impossible");
         } else if (vertices[to] == null) {
             throw new IllegalArgumentException("Add Edge To a null pointer is impossible");
+        } else {
+            for (Edge e : this.edges) {
+                if (e.from == from && e.to == to) {
+                    throw new IllegalArgumentException("Cannot add the same Edge multiple times!");
+                }
+            }
         }
         //
+
         Edge e = new Edge(from, to, weight);
+        System.out.println("Trying to add the following edge: " + e);
         this.vertices[from].addOutEdge(e);
         this.vertices[to].addIncEdge(e);
         this.edges.add(e);
@@ -37,7 +57,8 @@ public class DirectedGraph {
         addEdge(from, to, 1);
     }
 
-    public void removeEdge(int from, int to) {
+    public void removeEdge(int from, int to)
+            throws NotFoundException, IndexOutOfBoundsException, IllegalArgumentException, Exception {
         if (from >= N || from < 0) {
             throw new IndexOutOfBoundsException("" + from + " is out of bounds for vertices of size: " + N);
         } else if (to >= N || to < 0) {
@@ -64,13 +85,19 @@ public class DirectedGraph {
 
     public static void main(String[] args) throws Exception {
         System.out.println("Graph main function");
+        DirectedGraph diGraph = new DirectedGraph(20);
+        diGraph.vertices[2] = new Vertex(2);
+        diGraph.vertices[3] = new Vertex(3);
+        System.out.println(diGraph);
+        diGraph.addEdge(2, 3);
     }
 
     public String toString() {
         String s = "";
-        s += "Print Graph";
-
-        return "";
+        s += "Print Graph:\n";
+        s += "Vertices: " + Arrays.toString(this.vertices) + "\n";
+        s += "Edges: " + this.edges + "\n ++++++++++++ \n \n";
+        return s;
     }
 
 }
@@ -89,7 +116,7 @@ class Vertex {
     }
 
     void addOutEdge(Edge e) {
-        outcomingEdges.add(e);
+        outgoingEdges.add(e);
     }
 
     void removeOutEdge(Edge e) throws Exception {
@@ -101,7 +128,7 @@ class Vertex {
         }
     }
 
-    void removeIncEdge(Edge e) throws Exception {
+    void removeIncEdge(Edge e) throws NotFoundException {
         int index = incomingEdges.indexOf(e);
         if (index < 0) {
             throw new NotFoundException("Could not remove edge, since not found.");
@@ -115,7 +142,7 @@ class Vertex {
     }
 }
 
-class Edge {
+class Edge implements Comparable<Edge> {
     int from;
     int to;
     int weight;
@@ -141,6 +168,17 @@ class Edge {
     @Override
     public String toString() {
         return "E: " + this.from + " -> " + this.to;
+    }
+
+    @Override
+    public int compareTo(Edge o) {
+        // TODO Auto-generated method stub
+        if (this.from > o.from) {
+            return 1;
+        } else if (this.from < o.from) {
+            return -1;
+        } else
+            return 0;
     }
 }
 

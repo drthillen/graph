@@ -1,0 +1,11 @@
+Start:
+N: Number of vertices;
+
+
+-1: exit
+0: print
+1: addEdge - u v
+2: removeEdge - u v
+11: DFS
+12: DFS_Number
+121: DFS_Number_print

@@ -26,7 +26,7 @@ public class UndirectedGraphClient {
     }
 
     public static void main(String[] args) throws FileNotFoundException {
-        File input = new File("Graph/input1.txt");
+        File input = new File("Graph/testCycle.txt");
 
         Scanner scanInputLine = new Scanner(input);
         Scanner instructionScanner = new Scanner(scanInputLine.nextLine());
@@ -38,8 +38,13 @@ public class UndirectedGraphClient {
             if (scanInputLine.hasNextLine()) {
                 instructionScanner = new Scanner(scanInputLine.nextLine());
                 int instruction = instructionScanner.hasNextInt() ? instructionScanner.nextInt() : -2;
-
-                if (instruction == -2) {
+                instructionScanner.close();
+                if (instruction == -3) {
+                    // reset
+                    instructionScanner = new Scanner(scanInputLine.nextLine());
+                    int V = instructionScanner.hasNextInt() ? instructionScanner.nextInt() : 20;
+                    G = new UndirectedGraph(V);
+                } else if (instruction == -2) {
                     instructionFalseInput(G);
                 } else if (instruction == -1) {
                     // done
@@ -61,19 +66,21 @@ public class UndirectedGraphClient {
                         instructionRemoveEdge(G, u, v);
                     }
                 } else if (instruction == 11) {
-                    G.DFS(new boolean[G.N]);
+                    int[][] out = G.DFS2();
+                    System.out.println("DFS Numbers: ");
+                    System.out.println(Arrays.toString(out[0]));
+                    System.out.println("LOW Numbers: ");
+                    System.out.println(Arrays.toString(out[1]));
+                    System.out.println("AK Numbers: ");
+                    System.out.println(Arrays.toString(out[2]));
                 } else if (instruction == 12) {
-                    G.DFS_Number(new boolean[G.N]);
-                } else if (instruction == 121) {
-                    System.out.println(Arrays.toString(G.DFS_Number(new boolean[G.N])));
-                } else if (instruction == 13) {
-                    G.DFS_Low(new boolean[G.N]);
-                } else if (instruction == 131) {
-                    System.out.println(Arrays.toString(G.DFS_Low(new boolean[G.N])));
+                    // detect cycle
+                    System.out.println("G has cycle?: " + G.containsCycleDFS());
                 }
-
+                instructionScanner.close();
             }
         }
+        scanInputLine.close();
     }
 
 }

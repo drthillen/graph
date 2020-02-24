@@ -5,22 +5,23 @@ import java.util.*;
 public class UndirectedGraph {
 
     LinkedList<Integer>[] vertices;
-    int N;
+    int V;
 
     UndirectedGraph(int N) {
-        this.N = N;
-        this.vertices = new LinkedList[N];
+        System.out.println("Graph with size: " + N + " initialized.");
+        this.V = N;
+        this.vertices = new LinkedList[V];
         initializeVertices();
     }
 
     void initializeVertices() {
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < V; i++) {
             this.vertices[i] = new LinkedList<Integer>();
         }
     }
 
     void addEdge(int u, int v) throws Exception {
-        if (u < 0 || u >= N || v < 0 || v > N) {
+        if (u < 0 || u >= V || v < 0 || v >= V) {
             throw new Exception("Index out of Bounds!");
         } else {
             this.vertices[u].add(v);
@@ -29,14 +30,14 @@ public class UndirectedGraph {
     }
 
     void removeEdge(int u, int v) {
-        Iterator iter1 = this.vertices[u].iterator();
+        Iterator<Integer> iter1 = this.vertices[u].iterator();
         while (iter1.hasNext()) {
             Integer i = iter1.next();
             if (i == v) {
                 iter1.remove();
             }
         }
-        Iterator iter2 = this.vertices[v].iterator();
+        Iterator<Integer> iter2 = this.vertices[v].iterator();
         while (iter2.hasNext()) {
             Integer i = iter2.next();
             if (i == u) {
@@ -45,79 +46,91 @@ public class UndirectedGraph {
         }
     }
 
-    void DFS(boolean[] visited) {
-        // @params: boolean[N]
-        for (int i = 0; i < this.N; i++) {
-            if (visited[i] == false) {
-                DFS_Visit(i, visited);
-            }
-        }
-    }
+    int[][] DFS2() {
+        /* This DFS function allows us to find AKs, bridges and find low numbers! */
+        boolean[] visited = new boolean[this.V];
+        int[] dfs = new int[this.V];
+        int[] low = new int[this.V];
+        int[] isArtVert = new int[this.V];
 
-    void DFS_Visit(int u, boolean[] visited) {
-        visited[u] = true;
-        System.out.println("Visit of " + u);
-        for (Integer v : this.vertices[u]) {
+        int[] pred = new int[this.V];
+        int order = 0;
+        int s = 0;
+
+        for (int v = s; v < this.V; v++) {
             if (!visited[v]) {
-                DFS_Visit(v, visited);
+                pred[v] = -1;
+                order = DFSVisit2(v, order, dfs, low, pred, visited, isArtVert);
             }
         }
+        int[][] r = new int[][] { dfs, low, isArtVert };
+        return r;
     }
 
-    int[] DFS_Number(boolean[] visited) {
-        int[] dfs = new int[this.N];
-        int current = 1;
-        for (int i = 0; i < this.N; i++) {
-            if (visited[i] == false) {
-                current = DFS_Number_Visit(i, visited, dfs, current);
+    private int DFSVisit2(int v2, int order, int[] dfs, int[] low, int[] pred, boolean[] visited, int[] isArtVert) {
+        visited[v2] = true;
+        int lowI = order;
+        dfs[v2] = order;
+        order++;
+        for (int u : this.vertices[v2]) {
+            if (order > 1 && v2 == 0) {
+                // First Condition for Articulation Node
+                isArtVert[v2] = 1;
+            }
+            if (!visited[u]) { // edge {v2, u} is in DFS Tree!
+                // Neighbour in tree
+                pred[u] = v2;
+                order = DFSVisit2(u, order, dfs, low, pred, visited, isArtVert);
+                lowI = Math.min(lowI, low[u]); // low of neighbour connected by normal edge.
+                // System.out.println("Low of normaledge is: " + low[u] + " from V" + v2 + " ->"
+                // + u);
+                if (dfs[v2] <= low[u]) {
+                    isArtVert[v2] = 1;
+                    System.out.println("" + v2 + " is a artVert!");
+                    if (dfs[v2] != low[u]) {
+                        System.out.println("Edge : " + v2 + " -> " + u + " is a bridge!");
+                    }
+                }
+            } else if (pred[v2] != u) {
+                // back edge
+                lowI = Math.min(lowI, dfs[u]);
+                // System.out.println("DFS of backedge is: " + dfs[u] + " from V" + v2 + " ->" +
+                // u);
             }
         }
-        return dfs;
+        low[v2] = lowI;
+        return order;
     }
 
-    int DFS_Number_Visit(int u, boolean[] visited, int[] dfs, int current) {
-        visited[u] = true;
-        dfs[u] = current;
-        for (Integer v : this.vertices[u]) {
-            if (!visited[v]) {
-                current = DFS_Number_Visit(v, visited, dfs, ++current);
+    boolean containsCycleDFS() {
+        // Detect cycle
+        boolean[] visited = new boolean[this.V];
+        int[] pred = new int[this.V];
+        //
+        for (int u = 0; u < this.V; u++) {
+            if (!visited[u]) {
+                pred[u] = -1;
+                if (containsCycleDFSUtil(u, pred, visited)) {
+                    return true;
+                }
             }
         }
-        return current;
+        return false;
     }
 
-    int[] DFS_Low(boolean[] visited) {
-        int[] dfs = new int[this.N];
-        int[] LOW = new int[this.N];
-        int[] pred = new int[this.N];
-        int current = 1;
-        int s = 1;
-        pred[s] = -1;
-        for (int i = s; i < this.N; i++) {
-            if (visited[i] == false) {
-                current = DFS_Low_Visit(i, visited, dfs, LOW, pred, current);
+    boolean containsCycleDFSUtil(int v, int[] pred, boolean[] visited) {
+        visited[v] = true;
+        for (int w : this.vertices[v]) {
+            if (visited[w] && pred[v] != w) {
+                return true;
+            } else if (!visited[w]) {
+                pred[w] = v;
+                if (containsCycleDFSUtil(w, pred, visited)) {
+                    return true;
+                }
             }
         }
-        return LOW;
-    }
-
-    int DFS_Low_Visit(int u, boolean[] visited, int[] dfs, int[] LOW, int[] pred, int current) {
-        visited[u] = true;
-        dfs[u] = current;
-        int low = current;
-        int low2 = current;
-        for (Integer v : this.vertices[u]) {
-            if (!visited[v]) {
-                pred[v] = u;
-                low = Math.min(DFS_Low_Visit(v, visited, dfs, LOW, pred, ++current), low);
-
-            } else if (visited[v] && pred[u] != v) {
-                low2 = Math.min(low2, dfs[v]);
-
-            }
-        }
-        LOW[u] = Math.min(low2, low);
-        return LOW[u];
+        return false;
     }
 
     @Override

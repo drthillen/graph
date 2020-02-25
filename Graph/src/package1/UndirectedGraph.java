@@ -48,6 +48,11 @@ public class UndirectedGraph {
 
     int[][] DFS2() {
         /* This DFS function allows us to find AKs, bridges and find low numbers! */
+        /*
+         * TODO: Further improvement: leave out visited and use dfs == 0 AKs and bridges
+         * only exist in connected graphs --> shorten DFS function and make algorithm
+         * more correct.
+         */
         boolean[] visited = new boolean[this.V];
         int[] dfs = new int[this.V];
         int[] low = new int[this.V];

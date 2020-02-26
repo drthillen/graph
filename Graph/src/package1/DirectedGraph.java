@@ -147,22 +147,26 @@ class Edge implements Comparable<Edge> {
     int to;
     int weight;
 
-    Edge(int from, int to) {
-        Edge(from, to, 1);
+    public Edge(int from, int to) {
+        this(from, to, 1);
     }
 
-    Edge(int from, int to, int weight) {
+    public Edge(int from, int to, int weight) {
         this.from = from;
         this.to = to;
         this.weight = weight;
     }
 
     void delete(DirectedGraph G) {
-        Vertex fromVertex = G.vertices[this.from];
-        Vertex toVertex = G.vertices[this.to];
-        G.edges.remove(e);
-        toVertex.removeIncEdge(e);
-        fromVertex.removeOutEdge(e);
+        try {
+            Vertex fromVertex = G.vertices[this.from];
+            Vertex toVertex = G.vertices[this.to];
+            G.edges.remove(this);
+            toVertex.removeIncEdge(this);
+            fromVertex.removeOutEdge(this);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override

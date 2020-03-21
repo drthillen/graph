@@ -25,12 +25,20 @@ public class UndirectedGraphClient {
         G.removeEdge(u, v);
     }
 
-    public static void main(String[] args) throws FileNotFoundException {
-        File input = new File("Graph/testCycle.txt");
+    public static void main(String[] args) {
+        File input = new File("graph/Graph/input2.txt");
 
-        Scanner scanInputLine = new Scanner(input);
+        Scanner scanInputLine;
+        try {
+            scanInputLine = new Scanner(input);
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            System.err.println("Absolute path: " + input.getAbsolutePath());
+            scanInputLine = new Scanner("");
+        }
         Scanner instructionScanner = new Scanner(scanInputLine.nextLine());
-        int N = instructionScanner.hasNextInt() ? instructionScanner.nextInt() : 20;
+        int N = instructionScanner.hasNextInt() ? instructionScanner.nextInt() : 20; // Number of vertices
         UndirectedGraph G = new UndirectedGraph(N);
         boolean done = false;
         while (!done) {
@@ -76,6 +84,11 @@ public class UndirectedGraphClient {
                 } else if (instruction == 12) {
                     // detect cycle
                     System.out.println("G has cycle?: " + G.containsCycleDFS());
+                } else if (instruction == 13) {
+                    // detect bfs
+                    instructionScanner = new Scanner(scanInputLine.nextLine());
+                    int u = instructionScanner.hasNextInt() ? instructionScanner.nextInt() : -1;
+                    System.out.println("G has the following distances using BFS ?: " + Arrays.toString(G.BFS(u)));
                 }
                 instructionScanner.close();
             }

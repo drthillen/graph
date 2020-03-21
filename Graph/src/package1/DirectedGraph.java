@@ -2,7 +2,7 @@ package package1;
 
 import java.util.*;
 
-/* Simulating a Graph for simplicity not efficiency, the clever usage of LinkedList/AdjacencyList could substantially increase performance */
+/* a Graph for simplicity not efficiency, the clever usage of LinkedList/AdjacencyList could substantially increase performance */
 
 public class DirectedGraph {
 

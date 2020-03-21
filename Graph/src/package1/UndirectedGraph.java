@@ -73,6 +73,8 @@ public class UndirectedGraph {
     }
 
     private int DFSVisit2(int v2, int order, int[] dfs, int[] low, int[] pred, boolean[] visited, int[] isArtVert) {
+        // NEEDS to be fixed !! error if there is a cycle in which the starting point is
+        // contained: input2.txt ....--> ex 2 contains fix.
         visited[v2] = true;
         int lowI = order;
         dfs[v2] = order;
@@ -109,6 +111,11 @@ public class UndirectedGraph {
 
     boolean containsCycleDFS() {
         // Detect cycle
+        /*
+         * To detect a cycle one must follow a DFS path. If we encounter a visited node
+         * that is not the predecessor, there must be a cycle.
+         */
+
         boolean[] visited = new boolean[this.V];
         int[] pred = new int[this.V];
         //
@@ -124,6 +131,10 @@ public class UndirectedGraph {
     }
 
     boolean containsCycleDFSUtil(int v, int[] pred, boolean[] visited) {
+        /*
+         * returns true, if this node is in a cycle or this node leads to a cycle. Which
+         * doesn't mean that it has to be contained in a cycle...
+         */
         visited[v] = true;
         for (int w : this.vertices[v]) {
             if (visited[w] && pred[v] != w) {
@@ -138,9 +149,62 @@ public class UndirectedGraph {
         return false;
     }
 
+    public int[] BFS(int startingVertex) {
+
+        /*
+         * Breadth first Search: returns an integer array which contains a number w/ the
+         * distance to the starting vertex. WE print out if the graph is not a
+         * component.
+         */
+        Queue<Integer> queue = new LinkedList<>();
+        queue.add(startingVertex);
+        boolean[] visited = new boolean[this.V];
+        //
+
+        int[] distances = new int[this.V];
+        distances[startingVertex] = 0;
+        while (queue.size() > 0) {
+            int currBFS = queue.poll();
+            for (int v : this.vertices[currBFS]) {
+                if (!visited[v]) {
+                    queue.add(v);
+                    distances[v] = distances[currBFS] + 1;
+                    visited[v] = true;
+                }
+            }
+        }
+        if (hasUnvisited(visited)) {
+            System.err.println("More than one component!");
+        }
+
+        return distances;
+    }
+
+    boolean hasUnvisited(boolean[] visited) {
+        if (visited.length > 10_000) {
+            return hasUnvisitedParallel(visited);
+        } else {
+            for (boolean b : visited) {
+                if (!b) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    boolean hasUnvisitedParallel(boolean[] visited) {
+        // implement using threads...
+        for (boolean b : visited) {
+            if (!b) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
-        // TODO Auto-generated method stub
         String s = "Graph: \n";
         int i = 0;
         for (LinkedList<Integer> li : this.vertices) {

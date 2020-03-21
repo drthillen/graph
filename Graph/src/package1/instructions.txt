@@ -8,3 +8,4 @@ N: Number of vertices;
 2: removeEdge - u v
 11: DFS - Analysis
 12: detext cycle
+13: BFS and return distances; start - u
